@@ -1,6 +1,4 @@
 package com.bankmanagement.services;
-
-import com.bankmanagement.dao.TransactionDAOImp;
 import com.bankmanagement.dao.UserDAO;
 import com.bankmanagement.dao.TransactionDAO;
 import com.bankmanagement.models.*;
@@ -15,12 +13,14 @@ public class AdminService {
     private final TransactionDAO transactionDAO;
     private final String path = "/home/vedant/Documents/Bankers/src/assets/";
 
-    public AdminService(UserDAO userDAO, TransactionDAO transactionDAO) {
+    public AdminService(UserDAO userDAO, TransactionDAO transactionDAO)
+    {
         this.userDAO = userDAO;
         this.transactionDAO = transactionDAO;
     }
 
-    public void loadUsersFromFile(String filePath) {
+    public void loadUsersFromFile(String filePath)
+    {
         try (BufferedReader br = new BufferedReader(new FileReader(path+filePath))) {
             String line;
             while ((line = br.readLine()) != null) {
@@ -38,13 +38,19 @@ public class AdminService {
                         act = new SavingsAccount(initialAmount);
                     else
                         act = new CurrentAccount(initialAmount);
+                    if(userDAO.existsById(userId)){
+                        System.out.println("Userwith this id already exists!");
+                        continue;
+                    }
                     Customer user = new Customer(userId, fullName, password, aadharNumber, act);
                     userDAO.save(user);
+
+                    System.out.println("User "+fullName +" Registered!");
                 } else {
                     System.out.println("Invalid user data format: " + line);
                 }
+
             }
-            System.out.println("Users loaded successfully.");
         } catch (IOException e) {
             System.out.println("Error reading user file: " + e.getMessage());
         }
@@ -61,10 +67,12 @@ public class AdminService {
                     double amount = Double.parseDouble(parts[2]);
                     String transactionType = parts[3];
                     if(userDAO.existsById(userId)){
+
                         Transaction transaction = new Transaction(userId, timestamp, amount, transactionType=="Deposit"? Transaction.TransactionType.DEPOSIT: Transaction.TransactionType.WITHDRAW);
+
                         transactionDAO.addTransaction(transaction);
                     }
-                    System.err.println("User With Id Does Exists!");
+                    System.err.println("Something went wrong!(Can be userid or network)");
                 } else {
                     System.out.println("Invalid transaction data format: " + line);
                 }

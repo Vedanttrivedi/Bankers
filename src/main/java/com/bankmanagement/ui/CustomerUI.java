@@ -8,6 +8,7 @@ import com.bankmanagement.dao.UserDAOImp;
 import com.bankmanagement.dao.TransactionDAOImp;
 
 import java.io.Console;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class CustomerUI
@@ -18,14 +19,15 @@ public class CustomerUI
 
     public void start()
     {
-        while (true) {
+        while (true)
+        {
             System.out.println("===== Customer Menu =====");
             System.out.println("1. Register");
             System.out.println("2. Login");
             System.out.println("3. Quit");
             System.out.print("Choose an option: ");
 
-            var option = scanner.nextLine();
+            var option = scanner.next();
             switch (option) {
                 case "1" -> register();
                 case "2" -> login();
@@ -38,45 +40,103 @@ public class CustomerUI
         }
     }
 
-    private void register() {
-        try {
+    private void register()
+    {
+        try
+        {
             System.out.print("Enter Full Name: ");
-            var fullName = scanner.nextLine();
-            System.out.print("Enter Password: ");
-            var password = scanner.nextLine();
-            System.out.print("Enter Aadhaar Number: ");
-            var aadhaarNumber = scanner.nextLine();
-            System.out.print("Enter Account Type (Savings/Current): ");
-            var accountType = scanner.nextLine();
-            System.out.print("Enter Initial Amount: ");
-            var initialAmount = Double.parseDouble(scanner.nextLine());
+            scanner.skip("\\R?");
 
-            var userId = userService.register(fullName, password, aadhaarNumber, accountType, initialAmount);
+            var name = scanner.nextLine();
+            if(name.equals("\n") || name.charAt(0)==' ' || name.trim().length()==0)
+            {
+                System.err.println("Invalid Name value!");
+                return;
+            }
+            System.out.print("Enter Password: ");
+            var password = scanner.next();
+            if(password.length() < 8)
+            {
+                System.err.println("Minimum length For password is 8! Try again");
+                return;
+            }
+            System.out.print("Enter Aadhaar Number: ");
+            var aadhaarNumber = scanner.next();
+            try{
+                if(aadhaarNumber.length() != 12){
+                    System.err.println("Length required For aadhar card is 12");
+                    return;
+                }
+                long k = Long.parseLong(aadhaarNumber);
+            }catch (NumberFormatException nfe){
+                System.err.println("Invalid Value entered Can Only Contain Number!");
+                return;
+            }
+            System.out.print("Enter Account Type s or c (Savings/Current): ");
+            var accountType = scanner.next();
+            if(accountType.length() > 1)
+            {
+                System.err.println("Invalid Value !");
+                return;
+            }
+            char d = accountType.toLowerCase().charAt(0);
+            if(d!='s' && d!='c'){
+                System.err.println("Invalid value ! Entered is "+d);
+                System.out.println();
+                return;
+            }
+            if(d=='s')
+                System.out.println("Minimum balance for savings account is 500");
+            System.out.print("Enter initial amount : ");
+            var initialAmount = scanner.nextDouble();
+            if(initialAmount < 0){
+                System.out.println("Cannot enter negative amount");
+                return;
+            }
+            if(initialAmount < 500){
+                System.err.println("Savings Account Must have intial balance  : 500 ");
+                return;
+            }
+            var userId = userService.register(name, password, aadhaarNumber,d, initialAmount);
             System.out.println("Registration successful! Your User ID: " + userId);
-        } catch (Exception e) {
-            System.out.println("Error during registration: " + e.getMessage());
+        }
+        catch (InputMismatchException ie){
+            System.out.println(ie.getMessage());
+        }
+        catch (Exception e) {
+            System.out.println("Error during registration " + e.getMessage());
         }
     }
- private void login() {
-        try {
+ private void login()
+ {
+        try
+        {
             System.out.print("Enter User ID: ");
+            if(scanner.nextLine().equals("\n"))
+                scanner.nextLine();
+            scanner.skip("\\R?");
             var userId = scanner.nextLine();
 
             Console console = System.console();
             String password;
 
-            if (console != null) {
+            if (console != null)
+            {
                 char[] passwordChars = console.readPassword("Enter Password: ");
                 password = new String(passwordChars);
-            } else {
+            }
+            else
+            {
                 System.out.print("Enter Password: ");
-                password = scanner.nextLine();
+                password = scanner.next();
             }
 
-            if (userService.login(userId, password)) {
+            if (userService.login(userId, password))
+            {
                 System.out.println("Login successful!");
 
-                while (true) {
+                while (true)
+                {
                     System.out.println("===== Account Menu =====");
                     System.out.println("1. Deposit");
                     System.out.println("2. Withdraw");
@@ -85,49 +145,77 @@ public class CustomerUI
 
                     System.out.print("Choose an option: ");
 
-                    var option = scanner.nextLine();
-                    switch (option) {
+                    var option = scanner.next();
+                    switch (option)
+                    {
                         case "1" -> deposit(userId);
                         case "2" -> withdraw(userId);
                         case "3" -> profile(userId);
-                        case "4" -> {
+                        case "4" ->
+                        {
                             System.out.println("Logging out...");
                             return;
                         }
                         default -> System.out.println("Invalid option. Please try again.");
                     }
                 }
-            } else {
+            }
+            else
+            {
                 System.out.println("Invalid User ID or Password.");
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             System.out.println("Error during login: " + e.getMessage());
         }
     }
-    private void profile(String userId){
+    private void profile(String userId)
+    {
         userService.showProfile(userId);
     }
-    private void deposit(String userId) {
-        try {
+    private void deposit(String userId)
+    {
+        try
+        {
             System.out.print("Enter Deposit Amount: ");
-            var amount = Double.parseDouble(scanner.nextLine());
-            if(amount <= 0)
-                throw new BankException("Invalid Deposit Amount!");
+            var amount = scanner.nextDouble();
+            if(amount <= 0){
+                System.out.println("invalid value");return;
+            }
             transactionService.addTransaction(new Transaction(userId, java.time.LocalDateTime.now(), amount, Transaction.TransactionType.DEPOSIT));
             System.out.println("Deposit successful!");
-        } catch (Exception e) {
-            System.out.println("Error during deposit: " + e.getMessage());
+        }
+        catch (InputMismatchException ee)
+        {
+            System.out.println(ee.getMessage());
+        }
+        catch (Exception e)
+        {
+            System.err.println("Error : " +e.getMessage());
         }
     }
 
-    private void withdraw(String userId) {
-        try {
+    private void withdraw(String userId)
+    {
+        try
+        {
             System.out.print("Enter Withdrawal Amount: ");
-            var amount = Double.parseDouble(scanner.nextLine());
+            var amount = scanner.nextDouble();
+            if(amount < 0){
+                System.out.println("Invalid value!");
+                return;
+            }
             transactionService.addTransaction(new Transaction(userId, java.time.LocalDateTime.now(), amount, Transaction.TransactionType.WITHDRAW));
             System.out.println("Withdrawal successful!");
-        } catch (Exception e) {
-            System.out.println("Error during withdrawal: " + e.getMessage());
+        }
+        catch (InputMismatchException e)
+        {
+            System.out.println(e.getMessage());
+        }
+        catch (Exception ef)
+        {
+            System.out.println("Error "+ef.getMessage());
         }
     }
 }

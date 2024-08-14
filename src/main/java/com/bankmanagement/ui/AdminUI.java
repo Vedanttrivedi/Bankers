@@ -23,7 +23,7 @@ public class AdminUI {
             System.out.println("3. Last N Transactions Of User");
             System.out.println("4. Quit");
             System.out.print("Choose an option: ");
-
+            scanner.skip("\\R?");
             var option = scanner.nextLine();
             switch (option) {
                 case "1" -> loadUsersFromFile();
@@ -38,20 +38,24 @@ public class AdminUI {
     }
 
     private void loadUsersFromFile() {
+        System.out.println("Your userdata file must be present in  /home/vedant/Documents/Bankers/src/assets/");
         System.out.print("Enter the file path for users: ");
-        String filePath = scanner.nextLine();
+
+        scanner.skip("\\R?");
+        String filePath = scanner.next();
         adminService.loadUsersFromFile(filePath);
     }
 
     private void loadTransactionsFromFile() {
         System.out.print("Enter the file path for transactions: ");
-        String filePath = scanner.nextLine();
+        scanner.skip("\\R?");
+        String filePath = scanner.next();
         adminService.loadTransactionsFromFile(filePath);
     }
     private void lastNTransactions()
     {
         System.out.println("Enter userid : ");
-        var userId = scanner.nextLine();
+        var userId = scanner.next();
         System.out.println("Enter the n : ");
         var n = scanner.nextInt();
         adminService.getLastNTransaction(userId,n);

@@ -6,13 +6,16 @@ public class Main {
     private final Scanner scanner = new Scanner(System.in);
 
     public void start() {
+
         while (true) {
+
             System.out.println("===== Bank Management System =====");
             System.out.println("1. Customer");
             System.out.println("2. Admin");
+
             System.out.println("3. Exit");
             System.out.print("Choose an option: ");
-
+            scanner.skip("\\R?");
             var option = scanner.nextLine();
             switch (option) {
                 case "1" -> new CustomerUI().start();
