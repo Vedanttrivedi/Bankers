@@ -1,10 +1,10 @@
 package com.bankmanagement.ui;
 
 import java.util.Scanner;
-
+//implement extra features
 public class Main {
-    private final Scanner scanner = new Scanner(System.in);
-
+    Scanner scanner = new Scanner(System.in);
+    
     public void start() {
         while (true) {
             System.out.println("===== Bank Management System =====");
@@ -19,7 +19,6 @@ public class Main {
                 case "2" -> new AdminUI().start();
                 case "3" -> {
                     System.out.println("Exiting the system. Goodbye!");
-                    System.exit(0);
                 }
                 default -> System.out.println("Invalid option. Please try again.");
             }
