@@ -14,9 +14,11 @@ public class TransactionDAOImp implements TransactionDAO
 {
 
     private static TransactionDAOImp instance;
-    private final Map<String, List<Transaction>> transactions = new ConcurrentHashMap<>();
+    private volatile Map<String, List<Transaction>> transactions;
 
-    private TransactionDAOImp() {}
+    private TransactionDAOImp() {
+        transactions= new ConcurrentHashMap<>();
+    }
 
     public static TransactionDAOImp getInstance() {
         if (instance == null) {
@@ -49,7 +51,7 @@ public class TransactionDAOImp implements TransactionDAO
 
 
     @Override
-    public void addTransaction(Transaction transaction) {
+    public synchronized void addTransaction(Transaction transaction) {
         transactions.computeIfAbsent(transaction.userId(), k -> new ArrayList<>()).add(transaction);
     }
 
