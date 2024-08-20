@@ -12,11 +12,12 @@ public class Main
     {
         int port=6666;
         String ip="localhost";
+        boolean isRunning=true;
         try
         {
             Socket socket = new Socket(ip,port);
             System.out.println("Connected To "+socket.getRemoteSocketAddress());
-            while (true)
+            while (isRunning)
             {
 
                 System.out.println("===== Bank Management System =====");
@@ -31,19 +32,19 @@ public class Main
                     case "1" -> new CustomerUI(socket);
                     case "2" -> new AdminUI();
                     case "3" -> {
-                        System.out.println("Exiting the system. Goodbye!");
+                        isRunning=false;
                     }
                     default -> System.out.println("Invalid option. Please try again.");
                 }
             }
         }
-        catch (UnknownHostException ue)
-        {
-            System.out.println(ue.getMessage());
-        }
-        catch (IOException ie)
+        catch (Exception ie)
         {
             System.out.println(ie.getMessage());
+        }
+        finally
+        {
+            System.out.println("Thank you for visiting bank!");
         }
     }
 
