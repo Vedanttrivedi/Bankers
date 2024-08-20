@@ -1,5 +1,7 @@
 package com.bankmanagement.ui;
 
+import java.io.IOException;
+import java.net.Socket;
 import java.util.Scanner;
 //implement extra features
 public class Main {
@@ -28,7 +30,23 @@ public class Main {
         }
     }
 
-    public static void main(String[] args) {
-        new Main().start();
+    public static void main(String[] args)
+    {
+        try
+        {
+            int port = 6666;
+            String ip = "localhost";
+            System.out.println("Trying to connect with "+ip+"\t on port "+port);
+            Socket socket = new Socket(ip,port);
+            new Main().start();
+        }
+        catch (IOException ie)
+        {
+            System.out.println(ie.getMessage());
+        }
+        catch (Exception e)
+        {
+            System.out.println(e.getMessage());
+        }
     }
 }

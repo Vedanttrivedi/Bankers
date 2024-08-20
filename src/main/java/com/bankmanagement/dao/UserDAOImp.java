@@ -21,6 +21,11 @@ public class UserDAOImp implements UserDAO {
     }
 
     @Override
+    public boolean existsByAdhar(long adharNumber)
+    {
+        return true;
+    }
+    @Override
     public void save(Customer customer) {
         users.put(customer.getUserId(), customer);
     }

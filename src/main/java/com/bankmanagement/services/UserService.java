@@ -7,7 +7,8 @@ import com.bankmanagement.models.SavingsAccount;
 import com.bankmanagement.models.CurrentAccount;
 import java.util.UUID;
 
-public class UserService {
+public class UserService
+{
     private final UserDAO userDAO;
 
     public UserService(UserDAO userDAO) {
@@ -17,8 +18,13 @@ public class UserService {
     public void showProfile(String userId){
         System.out.println(userDAO.findById(userId));
     }
+    public Customer showProfileSocket(String userId)
+    {
+        System.out.println("Hii There.....");
+        System.out.println(userDAO.findById(userId));
+        return userDAO.findById(userId);
+    }
     public String register(String fullName, String password, String aadhaarNumber, char accountType, double initialAmount) {
-
         var userId = UUID.randomUUID().toString();
         var account = switch (accountType) {
             case 's' -> new SavingsAccount(initialAmount);
@@ -27,6 +33,7 @@ public class UserService {
         };
         var customer = new Customer(userId, fullName, password, aadhaarNumber, account);
         userDAO.save(customer);
+        System.out.println("Customer Saved in backend! "+customer);
         return userId;
     }
 

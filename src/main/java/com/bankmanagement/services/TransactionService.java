@@ -18,7 +18,7 @@ public class TransactionService
         this.userDAO = userDAO;
     }
 
-    public void addTransaction(Transaction transaction) {
+    public boolean addTransaction(Transaction transaction) throws UserNotFoundException{
         var userId = transaction.userId();
         if (!userDAO.existsById(userId)) {
             throw new UserNotFoundException(userId);
@@ -26,6 +26,7 @@ public class TransactionService
         var customer = userDAO.findById(userId);
         if (transaction.type() == Transaction.TransactionType.DEPOSIT) {
             customer.getAccount().deposit(transaction.amount());
+
         } else if (transaction.type() == Transaction.TransactionType.WITHDRAW) {
             if (customer.getAccount().getBalance() < transaction.amount()) {
                 throw new InsufficientFundsException(transaction.amount(), customer.getAccount().getBalance());
@@ -33,6 +34,7 @@ public class TransactionService
             customer.getAccount().withdraw(transaction.amount());
         }
         transactionDAO.addTransaction(transaction);
+        return true;
     }
 
 }
